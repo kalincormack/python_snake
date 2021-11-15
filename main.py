@@ -5,8 +5,8 @@ tutorial at: https://www.edureka.co/blog/snake-game-with-pygame/
 
 # import required packages
 import pygame # game development framework
-import time 
 import random # used to put food in random places on the screen
+from snake import Snake, snake
 
 # initialize the game
 pygame.init()
@@ -36,6 +36,9 @@ clock = pygame.time.Clock()
 snake_speed = 10 # higher number = faster snake = harder game
 snake_color = green
 snake_block = 20 
+
+# create a snake
+snake = Snake(green, dis.width / 2, dis.height / 2)
 
 # setup for messages to be displayed on the screen
 font_style = pygame.font.SysFont(None, 50)
@@ -102,17 +105,13 @@ def game_loop():
             # if someone clicks a key on the keyboard
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_LEFT: # left arrow key
-                    x1_change = -snake_block
-                    y1_change = 0
+                    snake.move('left')
                 elif event.key == pygame.K_RIGHT: # right arrow key
-                    x1_change = snake_block
-                    y1_change = 0
+                    snake.move('right')
                 elif event.key == pygame.K_UP: # up arrow key
-                    x1_change = 0
-                    y1_change = -snake_block
+                    snake.move('up')
                 elif event.key == pygame.K_DOWN: # down arrow key
-                    x1_change = 0
-                    y1_change = snake_block    
+                    snake.move('down')
         
         # set 'game_close' to True if the snake goes outside of the screen boundary
         if x1 >= dis_width or x1 < 0 or y1 >= dis_height or y1 < 0:
@@ -125,9 +124,6 @@ def game_loop():
         # draws red rectangle to represent the food
         pygame.draw.rect(dis, red, [foodx, foody, snake_block, snake_block])
 
-        # draw a green rectangle to represent the head of the snake
-        pygame.draw.rect(dis, green, [x1, y1, snake_block, snake_block])
-
         # estalish the location of the snake's head
         snake_head = []
         snake_head.append(x1)
@@ -135,14 +131,15 @@ def game_loop():
         snake_list.append(snake_head)
 
         # makes sure we don't have a "phantom" or "extra" 
-        if len(snake_list) > snake_length:
-                del snake_list[0]
+        if len(snake.segments) > snake.length:
+                del snake.segments[0]
         
         # chech to see if the snake's head intersects with any of the snake body parts
         for x in snake_list[:-1]:
                 if x == snake_head:
                     game_close = True
 
+        snake.draw(dis)
         draw_snake(snake_block, snake_list)
         display_score(snake_length - 1)
 
@@ -155,11 +152,11 @@ def game_loop():
             foodx = (
                 round(random.randrange(0, dis_width - snake_block) / snake_block)
                 * snake_block
-        )
+            )
             foody = (
                 round(random.randrange(0, dis_height - snake_block) / snake_block)
                 * snake_block
-        )
+            )
             snake_length += 1
 
         # sets clock speed; higher number = faster game (and more difficult!)
